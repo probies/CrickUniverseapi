@@ -12,11 +12,11 @@ exports.signup = (req, res) => {
             });
         }
 
-        const { name, email, password } = req.body;
+        const { name, college, email, mobile, password} = req.body;
         let username = shortId.generate();
         let profile = `${process.env.CLIENT_URL}/profile/${username}`;
 
-        let newUser = new User({ name, email, password, profile, username });
+        let newUser = new User({ name, college, email, mobile, password, profile, username });
         newUser.save((err, success) => {
             if (err) {
                 return res.status(400).json({
@@ -52,10 +52,10 @@ exports.signin = (req, res) => {
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
         res.cookie('token', token, { expiresIn: '1d' });
-        const { _id, username, name, email, role } = user;
+        const { _id, username, name, email, role , verify } = user;
         return res.json({
             token,
-            user: { _id, username, name, email, role }
+            user: { _id, username, name, email, role , verify }
         });
     });
 };
@@ -81,6 +81,26 @@ exports.authMiddleware = (req, res, next) => {
                 error: 'User not found'
             });
         }
+        req.profile = user;
+        next();
+    });
+};
+
+exports.verifyMiddleware = (req, res, next) => {
+    const authUserId = req.user._id;
+    User.findById({ _id: authUserId }).exec((err, user) => {
+        if (err || !user) {
+            return res.status(400).json({
+                error: 'User not found'
+            });
+        }
+
+        if (user.verify !== 1) {
+            return res.status(400).json({
+                error: 'User Not verified to Access this Page. Contact Admin for verification'
+            });
+        }
+
         req.profile = user;
         next();
     });

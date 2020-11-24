@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema;
 
 const tagSchema = new mongoose.Schema(
     {
@@ -12,6 +13,10 @@ const tagSchema = new mongoose.Schema(
             type: String,
             unique: true,
             index: true
+        },
+        postedBy: {
+            type: ObjectId,
+            ref: 'User'
         }
     },
     { timestamps: true }

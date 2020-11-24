@@ -25,6 +25,18 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true
         },
+        college: {
+            type: String,
+            trim: true,
+            required: true,
+            max: 32
+        },
+        mobile: {
+            type: Number,
+            required: true,
+            unique:true,
+            
+        },
         profile: {
             type: String,
             required: true
@@ -38,6 +50,10 @@ const userSchema = new mongoose.Schema(
             type: String
         },
         role: {
+            type: Number,
+            default: 0
+        },
+        verify: {
             type: Number,
             default: 0
         },

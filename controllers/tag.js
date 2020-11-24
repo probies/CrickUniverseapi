@@ -1,14 +1,15 @@
 const Tag = require('../models/tag');
 const Blog = require('../models/blog');
+const Notes = require('../models/notes');
 const slugify = require('slugify');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 
 exports.create = (req, res) => {
     const { name } = req.body;
     let slug = slugify(name).toLowerCase();
-
-    let tag = new Tag({ name, slug });
-
+   
+    let tag = new Tag({ name, slug  });
+    tag.postedBy = req.user._id;
     tag.save((err, data) => {
         if (err) {
             console.log(err);
@@ -41,19 +42,19 @@ exports.read = (req, res) => {
             });
         }
         // res.json(tag);
-        Blog.find({ tags: tag })
+        Notes.find({ tags: tag })
             .populate('categories', '_id name slug')
             .populate('tags', '_id name slug')
             .populate('postedBy', '_id name')
             .sort({ createdAt: -1 })
-            .select('_id title slug excerpt categories postedBy tags createdAt updatedAt')
+            .select('_id title slug mtitle  categories tags postedBy createdAt updatedAt')
             .exec((err, data) => {
                 if (err) {
                     return res.status(400).json({
                         error: errorHandler(err)
                     });
                 }
-                res.json({ tag: tag, blogs: data });
+                res.json({ tag: tag, notes: data });
             });
     });
 };
